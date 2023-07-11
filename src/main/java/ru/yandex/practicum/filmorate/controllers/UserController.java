@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.models.User;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static Map<Integer, User> users =  new HashMap<>();
+    private static Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public User createUser(@RequestBody User user) throws ValidationException {
@@ -32,7 +32,7 @@ public class UserController {
                                     || isNoSpace(user.getLogin()))
             throw new ValidationException("Неверный формат login");
 
-        if (!patternMatches(user.getEmail()) || user.getEmail().isBlank()
+        if (!isEmail(user.getEmail()) || user.getEmail().isBlank()
                                     || user.getEmail().isEmpty())
             throw new ValidationException("Неверный формат email");
 
@@ -54,7 +54,7 @@ public class UserController {
         return inputDate.isAfter(localDate);
     }
 
-    private static boolean patternMatches(String emailAddress) {
+    private static boolean isEmail(String emailAddress) {
         String regexPattern = "^(.+)@(\\S+)$";
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
@@ -85,7 +85,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    private static class IdGenerator {
+    public static class IdGenerator {
         private static int id = 1;
          private static int getFreeId() {
              while (users.containsKey(id))
