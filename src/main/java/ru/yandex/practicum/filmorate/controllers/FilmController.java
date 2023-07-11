@@ -88,6 +88,7 @@ public class FilmController {
 
     private static class IdGenerator {
         private static int id = 1;
+
         private static int getFreeId() {
             while (films.containsKey(id))
                 id++;

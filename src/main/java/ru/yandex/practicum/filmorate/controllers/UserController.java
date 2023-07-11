@@ -100,6 +100,7 @@ public class UserController {
 
     public static class IdGenerator {
         private static int id = 1;
+
          private static int getFreeId() {
              while (users.containsKey(id))
                  id++;
