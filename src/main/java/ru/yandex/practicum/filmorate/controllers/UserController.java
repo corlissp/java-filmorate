@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
  * @author Min Danil 06.07.2023
  */
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -25,23 +27,30 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody User user) throws ValidationException {
-        if (user.getName() == null)
+        if (user.getName() == null) {
+            log.warn("WARN: Неверное имя.");
             user.setName(user.getLogin());
-
+            log.info("INFO: name = login.");
+        }
         if (user.getLogin().isEmpty() || user.getLogin().isBlank()
-                                    || isNoSpace(user.getLogin()))
-            throw new ValidationException("Неверный формат login");
-
+                                    || isNoSpace(user.getLogin())) {
+            log.error("ERROR: Неверный формат login.");
+            throw new ValidationException("Неверный формат login.");
+        }
         if (!isEmail(user.getEmail()) || user.getEmail().isBlank()
-                                    || user.getEmail().isEmpty())
-            throw new ValidationException("Неверный формат email");
-
-        if (isDateFuture(user.getBirthday()))
-            throw new ValidationException("неверный формат birthday");
+                                    || user.getEmail().isEmpty()) {
+            log.error("ERROR: Неверный формат email.");
+            throw new ValidationException("Неверный формат email.");
+        }
+        if (isDateFuture(user.getBirthday())) {
+            log.error("ERROR: Неверный формат birthday.");
+            throw new ValidationException("Неверный формат birthday.");
+        }
 
         int freeId = IdGenerator.getFreeId();
         user.setId(freeId);
         users.put(user.getId(), user);
+        log.info("INFO: User is saved.");
         return user;
     }
 
@@ -64,10 +73,13 @@ public class UserController {
     @PutMapping
     public User updateUser(@RequestBody User user) throws ValidationException {
         int id = user.getId();
-        if (users.containsKey(id))
+        if (users.containsKey(id)) {
             users.put(id, user);
-        else
-            throw new ValidationException("User с данным id не найден");
+            log.info("INFO: User is update.");
+        } else {
+            log.error("ERROR: User с данным id не найден.");
+            throw new ValidationException("User с данным id не найден.");
+        }
         return user;
     }
 
