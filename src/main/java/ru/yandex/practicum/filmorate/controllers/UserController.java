@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
@@ -91,11 +89,6 @@ public class UserController {
             usersList.add((User) entry.getValue());
         }
         return usersList;
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> handleInvalidEmailException(ValidationException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     public static class IdGenerator {
