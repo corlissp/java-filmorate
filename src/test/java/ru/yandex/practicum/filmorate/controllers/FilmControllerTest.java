@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,28 +16,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmControllerTest {
+    Film film = Film.builder().build();
 
-    @Order(1)
-    @Test
-    public void addFilmTest() throws ValidationException {
-        Film film = new Film();
+    @BeforeEach
+    public void beforeEach() {
         film.setId(1);
         film.setName("Interstellar");
         film.setReleaseDate(LocalDate.parse("2014-10-29"));
         film.setDuration(120);
         film.setDescription("Our planet in future. People have not got food on the Earth.");
+    }
+
+    @Test
+    public void addFilmTest() {
         assertEquals(film, new FilmController().addFilm(film));
     }
 
-    @Order(2)
     @Test
     public void addNoNameFilmTest() {
         boolean thrown = false;
-        Film film = new Film();
-        film.setId(1);
-        film.setReleaseDate(LocalDate.parse("2014-10-29"));
-        film.setDuration(120);
-        film.setDescription("Our planet in future. People have not got food on the Earth.");
+        film.setName("");
         try {
             new FilmController().addFilm(film);
         } catch (ValidationException ex) {
@@ -47,16 +44,10 @@ public class FilmControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(3)
     @Test
     public void addNegativeDurationFilmTest() {
         boolean thrown = false;
-        Film film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
-        film.setReleaseDate(LocalDate.parse("2014-10-29"));
         film.setDuration(-20);
-        film.setDescription("Our planet in the future. People have not got food on the Earth.");
         try {
             new FilmController().addFilm(film);
         } catch (ValidationException ex) {
@@ -65,15 +56,9 @@ public class FilmControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(4)
     @Test
     public void addLongDescriptionFilmTest() {
         boolean thrown = false;
-        Film film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
-        film.setReleaseDate(LocalDate.parse("2014-10-29"));
-        film.setDuration(120);
         film.setDescription("Our planet in the future. People have not got food on the Earth. " +
                 "bdhjvbejhbjhebvjhbehjvbhevhbehvbhebvhebvhbehvbbejfbjefbjebfjbejfbejbfjbefbe" +
                 "efbjefjbejbfjebfjebfjbejfbejbfjebfjejfbejfbefejfbejfbjebfjejfjefbejbfjebfjbejfb" +
@@ -86,15 +71,9 @@ public class FilmControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(5)
     @Test
     public void addBlankDescriptionFilmTest() {
         boolean thrown = false;
-        Film film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
-        film.setReleaseDate(LocalDate.parse("2014-10-29"));
-        film.setDuration(120);
         film.setDescription("    ");
         try {
             new FilmController().addFilm(film);
@@ -104,16 +83,10 @@ public class FilmControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(6)
     @Test
     public void addWrongDateFilmTest() {
         boolean thrown = false;
-        Film film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
         film.setReleaseDate(LocalDate.parse("1812-09-02"));
-        film.setDuration(120);
-        film.setDescription("Our planet in the future. People have not got food on the Earth.");
         try {
             new FilmController().addFilm(film);
         } catch (ValidationException ex) {
@@ -122,31 +95,17 @@ public class FilmControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(7)
     @Test
-    public void updateFilmTest() throws ValidationException {
-        Film film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
-        film.setReleaseDate(LocalDate.parse("2014-10-29"));
-        film.setDuration(120);
-        film.setDescription("Our planet in the future. People have not got food on the Earth.");
+    public void updateFilmTest() {
         assertEquals(film, new FilmController().addFilm(film));
 
         film.setName("Interstellar Update");
         assertEquals(film, new FilmController().updateFilm(film));
     }
 
-    @Order(8)
     @Test
-    public void updateFailIdFilmTest() throws ValidationException {
+    public void updateFailIdFilmTest() {
         boolean thrown = false;
-        Film film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
-        film.setReleaseDate(LocalDate.parse("2014-10-29"));
-        film.setDuration(120);
-        film.setDescription("Our planet in the future. People have not got food on the Earth.");
         assertEquals(film, new FilmController().addFilm(film));
 
         film.setName("Interstellar Update");
@@ -157,5 +116,15 @@ public class FilmControllerTest {
             thrown = true;
         }
         assertTrue(thrown);
+    }
+
+    @Order(1)
+    @Test
+    public void getAllFilmsTest() {
+        List<Film> films = new ArrayList<>();
+        films.add(film);
+        FilmController controller = new FilmController();
+        controller.addFilm(film);
+        assertEquals(films, controller.getAllFilms());
     }
 }

@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.core.annotation.Order;
+import org.junit.jupiter.api.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
 
@@ -15,30 +12,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Min Danil 11.07.2023
  */
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserControllerTest {
+    User user = User.builder().build();
 
-    @Order(1)
-    @Test
-    public void addUserTest() throws ValidationException {
-        User user = new User();
+    @BeforeEach
+    public void beforeEach() {
         user.setId(1);
         user.setLogin("f1unexx");
         user.setName("Danil");
         user.setBirthday(LocalDate.parse("2000-07-23"));
         user.setEmail("danilwottwin@yandex.ru");
-        assertEquals(user, new UserController().createUser(user));
     }
 
-    @Order(2)
+    @Test
+    public void addUserTest() {
+        Assertions.assertEquals(user, new UserController().createUser(user));
+    }
+
     @Test
     public void addEmptyAndBlankLoginUserTest() {
         boolean thrown = false;
-        User user = new User();
-        user.setId(1);
-        user.setName("Danil");
-        user.setBirthday(LocalDate.parse("2000-07-23"));
-        user.setEmail("danilwottwin@yandex.ru");
+        user.setLogin("");
         try {
             new UserController().createUser(user);
         } catch (ValidationException exception) {
@@ -55,16 +49,10 @@ public class UserControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(3)
     @Test
     public void addFutureBirthdayUserTest() {
         boolean thrown = false;
-        User user = new User();
-        user.setId(1);
-        user.setLogin("f1unexx");
-        user.setName("Danil");
         user.setBirthday(LocalDate.parse("3000-07-23"));
-        user.setEmail("danilwottwin@yandex.ru");
         try {
             new UserController().createUser(user);
         } catch (ValidationException exception) {
@@ -73,15 +61,9 @@ public class UserControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(4)
     @Test
     public void addNoValidationEmailUserTest() {
         boolean thrown = false;
-        User user = new User();
-        user.setId(1);
-        user.setLogin("f1unexx");
-        user.setName("Danil");
-        user.setBirthday(LocalDate.parse("2000-07-23"));
         user.setEmail("danilwottwin.yandex.ru");
         try {
             new UserController().createUser(user);
@@ -91,45 +73,24 @@ public class UserControllerTest {
         assertTrue(thrown);
     }
 
-    @Order(5)
     @Test
-    public void addEmptyNameUserTest() throws ValidationException {
-        User user = new User();
-        user.setId(1);
-        user.setLogin("f1unexx");
-        user.setBirthday(LocalDate.parse("2000-07-23"));
-        user.setEmail("danilwottwin@yandex.ru");
+    public void addEmptyNameUserTest() {
+        user.setName("");
         user = new UserController().createUser(user);
         assertEquals(user.getLogin(), user.getName());
     }
 
-    @Order(6)
     @Test
-    public void updateUserTest() throws ValidationException {
-        User user = new User();
-        user.setId(1);
-        user.setLogin("f1unexx");
-        user.setName("Danil");
-        user.setBirthday(LocalDate.parse("2000-07-23"));
-        user.setEmail("danilwottwin@yandex.ru");
+    public void updateUserTest() {
         assertEquals(user, new UserController().createUser(user));
-
         user.setLogin("corlissp");
         assertEquals(user, new UserController().updateUser(user));
     }
 
-    @Order(7)
     @Test
-    public void updateFailIdUserTest() throws ValidationException {
+    public void updateFailIdUserTest() {
         boolean thrown = false;
-        User user = new User();
-        user.setId(1);
-        user.setLogin("f1unexx");
-        user.setName("Danil");
-        user.setBirthday(LocalDate.parse("2000-07-23"));
-        user.setEmail("danilwottwin@yandex.ru");
         assertEquals(user, new UserController().createUser(user));
-
         user.setLogin("corlissp");
         user.setId(999);
         try {
