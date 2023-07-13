@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controllers;
 import org.junit.jupiter.api.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmControllerTest {
-    Film film = Film.builder().build();
+    private final Film film = Film.builder().build();
+    private FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
 
     @BeforeEach
     public void beforeEach() {
@@ -29,7 +32,7 @@ public class FilmControllerTest {
 
     @Test
     public void addFilmTest() {
-        assertEquals(film, new FilmController().addFilm(film));
+        assertEquals(film, filmController.addFilm(film));
     }
 
     @Test
@@ -37,7 +40,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setName("");
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -49,7 +52,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setDuration(-20);
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -64,7 +67,7 @@ public class FilmControllerTest {
                 "efbjefjbejbfjebfjebfjbejfbejbfjebfjejfbejfbefejfbejfbjebfjejfjefbejbfjebfjbejfb" +
                 "efbehbfebfhbehfehfbbbbehfbehbfhebfhbehfbehfhebfhbehfbhebfhebfhbehbfhebfhehfehbfbf");
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -76,7 +79,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setDescription("    ");
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -88,7 +91,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setReleaseDate(LocalDate.parse("1812-09-02"));
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -97,21 +100,21 @@ public class FilmControllerTest {
 
     @Test
     public void updateFilmTest() {
-        assertEquals(film, new FilmController().addFilm(film));
+        assertEquals(film, filmController.addFilm(film));
 
         film.setName("Interstellar Update");
-        assertEquals(film, new FilmController().updateFilm(film));
+        assertEquals(film, filmController.updateFilm(film));
     }
 
     @Test
     public void updateFailIdFilmTest() {
         boolean thrown = false;
-        assertEquals(film, new FilmController().addFilm(film));
+        assertEquals(film, filmController.addFilm(film));
 
         film.setName("Interstellar Update");
         film.setId(999);
         try {
-            new FilmController().updateFilm(film);
+            filmController.updateFilm(film);
         } catch (ValidationException exception) {
             thrown = true;
         }
@@ -123,8 +126,7 @@ public class FilmControllerTest {
     public void getAllFilmsTest() {
         List<Film> films = new ArrayList<>();
         films.add(film);
-        FilmController controller = new FilmController();
-        controller.addFilm(film);
-        assertEquals(films, controller.getAllFilms());
+        filmController.addFilm(film);
+        assertEquals(films, filmController.getAllFilms());
     }
 }

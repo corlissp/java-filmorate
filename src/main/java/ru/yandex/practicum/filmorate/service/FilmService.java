@@ -1,55 +1,43 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * @author Min Danil 12.07.2023
+ * @author Min Danil 13.07.2023
  */
 
 @Slf4j
 @Service
 public class FilmService {
-    private static final Map<Integer, Film> films = new HashMap<>();
+    private final FilmStorage filmStorage;
 
-    public static Film addFilmService(Film film) {
-        checkValidationFilm(film);
-        int id = IdGenerator.getFreeId();
-        film.setId(id);
-        films.put(id, film);
-        log.info("INFO: Film is saved.");
-        return film;
+    @Autowired
+    public FilmService(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
-    public static List<Film> getAllFilmsService() {
-        List<Film> filmsList = new ArrayList<>();
-        for (Integer key : films.keySet())
-            filmsList.add(films.get(key));
-        log.info("INFO: Все фильмы получены.");
-        return filmsList;
+    public Film addFilmService(Film film) {
+        return filmStorage.addFilmStorage(film);
     }
 
-    public static Film updateFilmService(Film film) {
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.info("INFO: Film is update.");
-        } else {
-            log.error("ERROR: Film с введенным id не найден.");
-            throw new ValidationException("Film с введенным id не найден.");
-        }
-        return film;
+    public List<Film> getAllFilmsService() {
+        return filmStorage.getAllFilmsStorage();
     }
 
-    private static void checkValidationFilm(Film film) {
+    public Film updateFilmService(Film film) {
+        return filmStorage.updateFilmStorage(film);
+    }
+
+    public static void checkValidationFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("ERROR: Неверный формат name.");
             throw new ValidationException("Неверный формат name.");
@@ -80,15 +68,5 @@ public class FilmService {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse("1895-12-25", formatter);
         return realiseDate.isBefore(date);
-    }
-
-    private static class IdGenerator {
-        private static int id = 1;
-
-        private static int getFreeId() {
-            while (films.containsKey(id))
-                id++;
-            return id;
-        }
     }
 }

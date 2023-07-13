@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * @author Min Danil 06.07.2023
@@ -18,4 +19,5 @@ public class Film {
     private LocalDate releaseDate;
     private int duration;
     private int rate;
+    private Set<Long> likes;
 }
