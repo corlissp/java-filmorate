@@ -21,6 +21,7 @@ import static ru.yandex.practicum.filmorate.service.FilmService.checkValidationF
 public class InMemoryFilmStorage implements FilmStorage {
     private static final Map<Integer, Film> films = new HashMap<>();
 
+    @Override
     public Film addFilmStorage(Film film) {
         checkValidationFilm(film);
         int id = IdGenerator.getFreeId();
@@ -30,6 +31,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
+    @Override
     public List<Film> getAllFilmsStorage() {
         List<Film> filmsList = new ArrayList<>();
         for (Integer key : films.keySet())
@@ -38,6 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return filmsList;
     }
 
+    @Override
     public Film updateFilmStorage(Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
 
@@ -21,6 +22,7 @@ import static ru.yandex.practicum.filmorate.service.UserService.checkValidationU
 public class InMemoryUserStorage implements UserStorage {
     private static final Map<Integer, User> users = new HashMap<>();
 
+    @Override
     public User createUserStorage(User user) {
         checkValidationUser(user);
         int freeId = IdGenerator.getFreeId();
@@ -30,6 +32,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User updateUserStorage(User user) {
         int id = user.getId();
         if (users.containsKey(id)) {
@@ -42,6 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public List<User> getAllUsersStorage() {
         List<User> usersList = new ArrayList<>();
         for (Integer key : users.keySet())
@@ -50,7 +54,10 @@ public class InMemoryUserStorage implements UserStorage {
         return usersList;
     }
 
+    @Override
     public User getUserByIdStorage(int id) {
+        if (!users.containsKey(id))
+            throw new NotFoundException("Not Found");
         return users.get(id);
     }
 

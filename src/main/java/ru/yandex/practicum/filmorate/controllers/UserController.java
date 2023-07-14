@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Min Danil 06.07.2023
@@ -22,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         return userService.createUserService(user);
     }
 
@@ -34,5 +36,32 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsersService();
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getUserFriends(@PathVariable int id) {
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@Valid @PathVariable int id) {
+        return userService.getUserById(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Set<User> getUserCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        System.out.print("Запрос: ");
+        System.out.println(userService.getUserCommonFriends(id, otherId));
+        return userService.getUserCommonFriends(id, otherId);
     }
 }

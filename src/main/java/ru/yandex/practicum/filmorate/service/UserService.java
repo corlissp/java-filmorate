@@ -9,8 +9,11 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Min Danil 13.07.2023
@@ -59,7 +62,44 @@ public class UserService {
     }
 
     public void addFriend(int id, int friendId) {
-        userStorage.getUserByIdStorage(id).addFriend(friendId);
+        User user = getUserById(id);
+        User friendUser = getUserById(friendId);
+        if (user.getFriends() == null)
+            user.setFriends(new HashSet<>());
+        user.getFriends().add(friendId);
+        if (friendUser.getFriends() == null)
+            friendUser.setFriends(new HashSet<>());
+        friendUser.getFriends().add(id);
+    }
+
+    public void deleteFriend(int id, int friendId) {
+        User user = getUserById(id);
+        User friendUser = getUserById(friendId);
+        if (user.getFriends() != null)
+            user.getFriends().remove(friendId);
+        if (friendUser.getFriends() != null)
+            friendUser.getFriends().remove(id);
+    }
+
+    public List<User> getUserFriends(int id) {
+        if (userStorage.getUserByIdStorage(id).getFriends() == null)
+            userStorage.getUserByIdStorage(id).setFriends(new HashSet<>());
+        return userStorage.getUserByIdStorage(id).getFriends()
+                .stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    public User getUserById(int id) {
+        return userStorage.getUserByIdStorage(id);
+    }
+
+    public Set<User> getUserCommonFriends(int id, int otherId) {
+        return userStorage.getUserByIdStorage(id).getFriends()
+                .stream()
+                .filter(getUserById(otherId).getFriends()::contains)
+                .map(this::getUserById)
+                .collect(Collectors.toSet());
     }
 
     private static boolean isNoSpace(String string) {

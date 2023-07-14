@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmControllerTest {
     private final Film film = Film.builder().build();
-    private FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
+    private final FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
 
     @BeforeEach
     public void beforeEach() {

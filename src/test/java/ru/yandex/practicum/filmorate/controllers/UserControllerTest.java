@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Min Danil 11.07.2023
  */
 public class UserControllerTest {
-    private final User user = User.builder().build();
+    private User user = User.builder().build();
     private final UserController userController = new UserController(new UserService(new InMemoryUserStorage()));
 
     @BeforeEach
