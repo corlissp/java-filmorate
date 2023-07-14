@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -34,5 +35,26 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
         return filmService.updateFilmService(film);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void addUserLikeFilm(@Valid @PathVariable int id, @Valid @PathVariable int userId) {
+        filmService.addUserLikeToFilmService(id, userId);
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable int id) {
+        return filmService.getFilmById(id);
+    }
+
+    @DeleteMapping("{id}/like/{userId}")
+    public void deleteUserLikeFilm(@Valid @PathVariable int id, @Valid @PathVariable int userId) {
+        filmService.deleteUserLikeFromFilmService(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") int count) {
+        System.out.println(filmService.getPopularFilmsService(count));
+        return filmService.getPopularFilmsService(count);
     }
 }

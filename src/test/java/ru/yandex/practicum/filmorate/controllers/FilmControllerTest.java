@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,7 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmControllerTest {
     private final Film film = Film.builder().build();
-    private final FilmController filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
+    private final FilmController filmController = new FilmController(
+            new FilmService(
+                    new InMemoryFilmStorage(),
+                    new InMemoryUserStorage()));
 
     @BeforeEach
     public void beforeEach() {

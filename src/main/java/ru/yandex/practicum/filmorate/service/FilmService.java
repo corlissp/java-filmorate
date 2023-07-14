@@ -5,11 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Min Danil 13.07.2023
@@ -19,9 +22,11 @@ import java.util.List;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+        this.userStorage = userStorage;
         this.filmStorage = filmStorage;
     }
 
@@ -62,6 +67,28 @@ public class FilmService {
             log.error("ERROR: Дата релиза раньше 28 декабря 1895 года.");
             throw new ValidationException("Дата релиза раньше 28 декабря 1895 года.");
         }
+    }
+
+    public Film getFilmById(int id) {
+        return filmStorage.getFilmByIdStorage(id);
+    }
+
+    public void addUserLikeToFilmService(int id, int userId) {
+        User user = userStorage.getUserByIdStorage(userId);
+        getFilmById(id).getLikes().add(user.getId());
+    }
+
+    public void deleteUserLikeFromFilmService(int id, int userId) {
+        User user = userStorage.getUserByIdStorage(userId);
+        getFilmById(id).getLikes().remove(user.getId());
+    }
+
+    public List<Film> getPopularFilmsService(int count) {
+        return filmStorage.getAllFilmsStorage()
+                .stream()
+                .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     private static boolean isBeforeDate(LocalDate realiseDate) {
