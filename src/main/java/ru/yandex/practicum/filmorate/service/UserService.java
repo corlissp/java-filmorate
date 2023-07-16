@@ -34,6 +34,7 @@ public class UserService {
     }
 
     public User updateUserService(User user) {
+        checkValidationUser(user);
         return userStorage.updateUserStorage(user);
     }
 

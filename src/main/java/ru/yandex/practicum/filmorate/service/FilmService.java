@@ -39,6 +39,7 @@ public class FilmService {
     }
 
     public Film updateFilmService(Film film) {
+        checkValidationFilm(film);
         return filmStorage.updateFilmStorage(film);
     }
 
