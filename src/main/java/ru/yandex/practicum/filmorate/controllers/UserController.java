@@ -60,8 +60,6 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> getUserCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        System.out.print("Запрос: ");
-        System.out.println(userService.getUserCommonFriends(id, otherId));
         return userService.getUserCommonFriends(id, otherId);
     }
 }

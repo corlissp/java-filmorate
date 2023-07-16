@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         int id = IdGenerator.getFreeId();
         film.setId(id);
         films.put(id, film);
-        log.info("INFO: Film is saved.");
+        log.info("INFO: Фильм с id = {} сохранён.", id);
         return film;
     }
 
@@ -45,18 +44,20 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film updateFilmStorage(Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
-            log.info("INFO: Film is update.");
+            log.info("INFO: Фильм с id = {} обновлён.", film.getId());
         } else {
-            log.error("ERROR: Film с введенным id не найден.");
-            throw new ValidationException("Film с введенным id не найден.");
+            log.error("ERROR: Фильм с id = {} не найден.", film.getId());
+            throw new NotFoundException("Фильм с id = " + film.getId() + " не найден.");
         }
         return film;
     }
 
     @Override
     public Film getFilmByIdStorage(int id) {
-        if (!films.containsKey(id))
-            throw new NotFoundException("Филм не найден.");
+        if (!films.containsKey(id)) {
+            log.error("ERROR: Фильм с id = {} не найден.", id);
+            throw new NotFoundException("Фильм с id = " + id + " не найден.");
+        }
         return films.get(id);
     }
 
