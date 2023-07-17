@@ -20,19 +20,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmControllerTest {
-    private final Film film = Film.builder().build();
-    private final FilmController filmController = new FilmController(
-            new FilmService(
-                    new InMemoryFilmStorage(),
-                    new InMemoryUserStorage()));
+    private Film film;
+    private FilmController filmController;
 
     @BeforeEach
     public void beforeEach() {
+        film = Film.builder().build();
         film.setId(1);
         film.setName("Interstellar");
         film.setReleaseDate(LocalDate.parse("2014-10-29"));
         film.setDuration(120);
         film.setDescription("Our planet in future. People have not got food on the Earth.");
+        filmController = new FilmController(new FilmService(
+                            new InMemoryFilmStorage(),
+                                new InMemoryUserStorage()));
     }
 
     @Test

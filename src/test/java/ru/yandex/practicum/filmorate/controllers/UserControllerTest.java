@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
@@ -16,18 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Min Danil 11.07.2023
  */
 public class UserControllerTest {
-    private User user = User.builder().build();
-    private final UserController userController = new UserController(
-            new UserService(
-                    new InMemoryUserStorage()));
+    private User user;
+    private UserController userController;
 
     @BeforeEach
     public void beforeEach() {
+        user = User.builder().build();
         user.setId(1);
         user.setLogin("f1unexx");
         user.setName("Danil");
         user.setBirthday(LocalDate.parse("2000-07-23"));
         user.setEmail("danilwottwin@yandex.ru");
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
