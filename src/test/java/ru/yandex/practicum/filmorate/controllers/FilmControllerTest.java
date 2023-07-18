@@ -1,8 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import org.junit.jupiter.api.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,20 +20,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmControllerTest {
-    Film film = Film.builder().build();
+    private Film film;
+    private FilmController filmController;
 
     @BeforeEach
     public void beforeEach() {
+        film = Film.builder().build();
         film.setId(1);
         film.setName("Interstellar");
         film.setReleaseDate(LocalDate.parse("2014-10-29"));
         film.setDuration(120);
         film.setDescription("Our planet in future. People have not got food on the Earth.");
+        filmController = new FilmController(new FilmService(
+                            new InMemoryFilmStorage(),
+                                new InMemoryUserStorage()));
     }
 
     @Test
     public void addFilmTest() {
-        assertEquals(film, new FilmController().addFilm(film));
+        assertEquals(film, filmController.addFilm(film));
     }
 
     @Test
@@ -37,7 +46,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setName("");
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -49,7 +58,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setDuration(-20);
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -64,7 +73,7 @@ public class FilmControllerTest {
                 "efbjefjbejbfjebfjebfjbejfbejbfjebfjejfbejfbefejfbejfbjebfjejfjefbejbfjebfjbejfb" +
                 "efbehbfebfhbehfehfbbbbehfbehbfhebfhbehfbehfhebfhbehfbhebfhebfhbehbfhebfhehfehbfbf");
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -76,7 +85,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setDescription("    ");
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -88,7 +97,7 @@ public class FilmControllerTest {
         boolean thrown = false;
         film.setReleaseDate(LocalDate.parse("1812-09-02"));
         try {
-            new FilmController().addFilm(film);
+            filmController.addFilm(film);
         } catch (ValidationException ex) {
             thrown = true;
         }
@@ -97,22 +106,22 @@ public class FilmControllerTest {
 
     @Test
     public void updateFilmTest() {
-        assertEquals(film, new FilmController().addFilm(film));
+        assertEquals(film, filmController.addFilm(film));
 
         film.setName("Interstellar Update");
-        assertEquals(film, new FilmController().updateFilm(film));
+        assertEquals(film, filmController.updateFilm(film));
     }
 
     @Test
     public void updateFailIdFilmTest() {
         boolean thrown = false;
-        assertEquals(film, new FilmController().addFilm(film));
+        assertEquals(film, filmController.addFilm(film));
 
         film.setName("Interstellar Update");
         film.setId(999);
         try {
-            new FilmController().updateFilm(film);
-        } catch (ValidationException exception) {
+            filmController.updateFilm(film);
+        } catch (NotFoundException exception) {
             thrown = true;
         }
         assertTrue(thrown);
@@ -123,8 +132,7 @@ public class FilmControllerTest {
     public void getAllFilmsTest() {
         List<Film> films = new ArrayList<>();
         films.add(film);
-        FilmController controller = new FilmController();
-        controller.addFilm(film);
-        assertEquals(films, controller.getAllFilms());
+        filmController.addFilm(film);
+        assertEquals(films, filmController.getAllFilms());
     }
 }

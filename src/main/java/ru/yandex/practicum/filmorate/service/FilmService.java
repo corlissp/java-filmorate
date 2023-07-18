@@ -1,55 +1,49 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * @author Min Danil 12.07.2023
+ * @author Min Danil 13.07.2023
  */
 
 @Slf4j
 @Service
 public class FilmService {
-    private static final Map<Integer, Film> films = new HashMap<>();
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
-    public static Film addFilmService(Film film) {
+    @Autowired
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+        this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
+    }
+
+    public Film addFilmService(Film film) {
+        return filmStorage.addFilmStorage(film);
+    }
+
+    public List<Film> getAllFilmsService() {
+        return filmStorage.getAllFilmsStorage();
+    }
+
+    public Film updateFilmService(Film film) {
         checkValidationFilm(film);
-        int id = IdGenerator.getFreeId();
-        film.setId(id);
-        films.put(id, film);
-        log.info("INFO: Film is saved.");
-        return film;
+        return filmStorage.updateFilmStorage(film);
     }
 
-    public static List<Film> getAllFilmsService() {
-        List<Film> filmsList = new ArrayList<>();
-        for (Integer key : films.keySet())
-            filmsList.add(films.get(key));
-        log.info("INFO: Все фильмы получены.");
-        return filmsList;
-    }
-
-    public static Film updateFilmService(Film film) {
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.info("INFO: Film is update.");
-        } else {
-            log.error("ERROR: Film с введенным id не найден.");
-            throw new ValidationException("Film с введенным id не найден.");
-        }
-        return film;
-    }
-
-    private static void checkValidationFilm(Film film) {
+    public static void checkValidationFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("ERROR: Неверный формат name.");
             throw new ValidationException("Неверный формат name.");
@@ -76,19 +70,31 @@ public class FilmService {
         }
     }
 
+    public Film getFilmById(int id) {
+        return filmStorage.getFilmByIdStorage(id);
+    }
+
+    public void addUserLikeToFilmService(int id, int userId) {
+        User user = userStorage.getUserByIdStorage(userId);
+        getFilmById(id).getLikes().add(user.getId());
+    }
+
+    public void deleteUserLikeFromFilmService(int id, int userId) {
+        User user = userStorage.getUserByIdStorage(userId);
+        getFilmById(id).getLikes().remove(user.getId());
+    }
+
+    public List<Film> getPopularFilmsService(int count) {
+        return filmStorage.getAllFilmsStorage()
+                .stream()
+                .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
     private static boolean isBeforeDate(LocalDate realiseDate) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse("1895-12-25", formatter);
         return realiseDate.isBefore(date);
-    }
-
-    private static class IdGenerator {
-        private static int id = 1;
-
-        private static int getFreeId() {
-            while (films.containsKey(id))
-                id++;
-            return id;
-        }
     }
 }

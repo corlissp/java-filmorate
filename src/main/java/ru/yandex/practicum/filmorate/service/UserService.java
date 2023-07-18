@@ -1,57 +1,48 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
- * @author Min Danil 12.07.2023
+ * @author Min Danil 13.07.2023
  */
 
 @Slf4j
 @Service
 public class UserService {
-    private static final Map<Integer, User> users = new HashMap<>();
+    private final UserStorage userStorage;
 
-    public static User createUserService(User user) {
+    @Autowired
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
+    public User createUserService(User user) {
+        return userStorage.createUserStorage(user);
+    }
+
+    public User updateUserService(User user) {
         checkValidationUser(user);
-        int freeId = IdGenerator.getFreeId();
-        user.setId(freeId);
-        users.put(user.getId(), user);
-        log.info("INFO: User is saved.");
-        return user;
+        return userStorage.updateUserStorage(user);
     }
 
-    public static User updateUserService(User user) {
-        int id = user.getId();
-        if (users.containsKey(id)) {
-            users.put(id, user);
-            log.info("INFO: User is update.");
-        } else {
-            log.error("ERROR: User с данным id не найден.");
-            throw new ValidationException("User с данным id не найден.");
-        }
-        return user;
+    public List<User> getAllUsersService() {
+        return userStorage.getAllUsersStorage();
     }
 
-    public static List<User> getAllUsersService() {
-        List<User> usersList = new ArrayList<>();
-        for (Integer key : users.keySet())
-            usersList.add(users.get(key));
-        log.info("INFO: Все пользователи получены.");
-        return usersList;
-    }
-
-    private static void checkValidationUser(User user) {
+    public static void checkValidationUser(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             log.warn("WARN: Неверное имя.");
             user.setName(user.getLogin());
@@ -71,6 +62,47 @@ public class UserService {
         }
     }
 
+    public void addFriend(int id, int friendId) {
+        User user = getUserById(id);
+        User friendUser = getUserById(friendId);
+        if (user.getFriends() == null)
+            user.setFriends(new HashSet<>());
+        user.getFriends().add(friendId);
+        if (friendUser.getFriends() == null)
+            friendUser.setFriends(new HashSet<>());
+        friendUser.getFriends().add(id);
+    }
+
+    public void deleteFriend(int id, int friendId) {
+        User user = getUserById(id);
+        User friendUser = getUserById(friendId);
+        if (user.getFriends() != null)
+            user.getFriends().remove(friendId);
+        if (friendUser.getFriends() != null)
+            friendUser.getFriends().remove(id);
+    }
+
+    public List<User> getUserFriends(int id) {
+        if (userStorage.getUserByIdStorage(id).getFriends() == null)
+            userStorage.getUserByIdStorage(id).setFriends(new HashSet<>());
+        return userStorage.getUserByIdStorage(id).getFriends()
+                .stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    public User getUserById(int id) {
+        return userStorage.getUserByIdStorage(id);
+    }
+
+    public Set<User> getUserCommonFriends(int id, int otherId) {
+        return userStorage.getUserByIdStorage(id).getFriends()
+                .stream()
+                .filter(getUserById(otherId).getFriends()::contains)
+                .map(this::getUserById)
+                .collect(Collectors.toSet());
+    }
+
     private static boolean isNoSpace(String string) {
         return string.matches("\\S");
     }
@@ -85,15 +117,5 @@ public class UserService {
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
                 .matches();
-    }
-
-    public static class IdGenerator {
-        private static int id = 1;
-
-        private static int getFreeId() {
-            while (users.containsKey(id))
-                id++;
-            return id;
-        }
     }
 }

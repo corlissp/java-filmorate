@@ -1,8 +1,13 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -13,20 +18,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Min Danil 11.07.2023
  */
 public class UserControllerTest {
-    User user = User.builder().build();
+    private User user;
+    private UserController userController;
 
     @BeforeEach
     public void beforeEach() {
+        user = User.builder().build();
         user.setId(1);
         user.setLogin("f1unexx");
         user.setName("Danil");
         user.setBirthday(LocalDate.parse("2000-07-23"));
         user.setEmail("danilwottwin@yandex.ru");
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
     public void addUserTest() {
-        Assertions.assertEquals(user, new UserController().createUser(user));
+        Assertions.assertEquals(user, userController.createUser(user));
     }
 
     @Test
@@ -34,7 +42,7 @@ public class UserControllerTest {
         boolean thrown = false;
         user.setLogin("");
         try {
-            new UserController().createUser(user);
+            userController.createUser(user);
         } catch (ValidationException exception) {
             thrown = true;
         }
@@ -42,7 +50,7 @@ public class UserControllerTest {
         thrown = false;
         user.setLogin("   ");
         try {
-            new UserController().createUser(user);
+            userController.createUser(user);
         } catch (ValidationException exception) {
             thrown = true;
         }
@@ -54,7 +62,7 @@ public class UserControllerTest {
         boolean thrown = false;
         user.setBirthday(LocalDate.parse("3000-07-23"));
         try {
-            new UserController().createUser(user);
+            userController.createUser(user);
         } catch (ValidationException exception) {
             thrown = true;
         }
@@ -66,7 +74,7 @@ public class UserControllerTest {
         boolean thrown = false;
         user.setEmail("danilwottwin.yandex.ru");
         try {
-            new UserController().createUser(user);
+            userController.createUser(user);
         } catch (ValidationException exception) {
             thrown = true;
         }
@@ -76,26 +84,26 @@ public class UserControllerTest {
     @Test
     public void addEmptyNameUserTest() {
         user.setName("");
-        user = new UserController().createUser(user);
+        user = userController.createUser(user);
         assertEquals(user.getLogin(), user.getName());
     }
 
     @Test
     public void updateUserTest() {
-        assertEquals(user, new UserController().createUser(user));
+        assertEquals(user, userController.createUser(user));
         user.setLogin("corlissp");
-        assertEquals(user, new UserController().updateUser(user));
+        assertEquals(user, userController.updateUser(user));
     }
 
     @Test
     public void updateFailIdUserTest() {
         boolean thrown = false;
-        assertEquals(user, new UserController().createUser(user));
+        assertEquals(user, userController.createUser(user));
         user.setLogin("corlissp");
         user.setId(999);
         try {
-            new UserController().updateUser(user);
-        } catch (ValidationException exception) {
+            userController.updateUser(user);
+        } catch (NotFoundException exception) {
             thrown = true;
         }
         assertTrue(thrown);
