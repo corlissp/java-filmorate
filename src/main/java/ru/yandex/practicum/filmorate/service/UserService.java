@@ -102,7 +102,7 @@ public class UserService {
     }
 
     private static boolean isEmail(String emailAddress) {
-        String regexPattern = "^(.+)@(\\S+)$";
+        String regexPattern = "^(.+)@(\\S+)\\.\\w+$";
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
                 .matches();
