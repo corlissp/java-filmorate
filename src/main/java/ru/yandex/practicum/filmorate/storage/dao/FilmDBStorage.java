@@ -85,8 +85,7 @@ public class FilmDBStorage implements FilmStorage {
                 addLike(film.getId(), userId);
             }
         }
-        System.out.println("OKKKKKKK");
-        return film;
+        return getFilmByIdStorage(film.getId());
     }
 
     @Override
