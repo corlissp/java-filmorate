@@ -72,7 +72,7 @@ public class UserControllerTest {
     @Test
     public void addNoValidationEmailUserTest() {
         boolean thrown = false;
-        user.setEmail("danilwottwin.yandex.ru");
+        user.setEmail("danilwottwin.yandex.@ru");
         try {
             userController.createUser(user);
         } catch (ValidationException exception) {

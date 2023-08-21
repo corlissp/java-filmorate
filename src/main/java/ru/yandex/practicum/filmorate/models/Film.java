@@ -20,6 +20,8 @@ public class Film {
     private LocalDate releaseDate;
     private int duration;
     private Set<Integer> likes;
+    private Set<Genre> genre;
+    private Mpa mpa;
 
     public Set<Integer> getLikes() {
         if (likes == null)
