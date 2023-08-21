@@ -108,7 +108,7 @@ public class FilmDBStorage implements FilmStorage {
             genreService.addFilmGenres(film.getId(), film.getGenres());
         }
 
-        if(film.getLikes() != null) {
+        if (film.getLikes() != null) {
             for (Integer userId : film.getLikes()) {
                 addLike(film.getId(), userId);
             }
