@@ -18,6 +18,7 @@ public class GenreDBStorage implements GenreStorage {
     public GenreDBStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     @Override
     public Collection<Genre> getAllGenres() {
         String sqlGenre = "select GENREID, NAME from GENRE ORDER BY GENREID";
@@ -38,8 +39,7 @@ public class GenreDBStorage implements GenreStorage {
         Genre genre;
         try {
             genre = jdbcTemplate.queryForObject(sqlGenre, this::makeGenre, genreId);
-        }
-        catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Жанр с идентификатором " +
                     genreId + " не зарегистрирован!");
         }
