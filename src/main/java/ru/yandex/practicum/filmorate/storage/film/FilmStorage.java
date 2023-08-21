@@ -15,4 +15,6 @@ public interface FilmStorage {
     Film updateFilmStorage(Film film);
 
     Film getFilmByIdStorage(int id);
+    boolean addLike(int filmId, int userId);
+    boolean deleteLike(int filmId, int userId);
 }

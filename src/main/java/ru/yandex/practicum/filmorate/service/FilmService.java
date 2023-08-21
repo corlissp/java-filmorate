@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
-import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -25,7 +25,7 @@ public class FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage, @Qualifier("UserDBStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
     }
@@ -75,13 +75,11 @@ public class FilmService {
     }
 
     public void addUserLikeToFilmService(int id, int userId) {
-        User user = userStorage.getUserByIdStorage(userId);
-        getFilmById(id).getLikes().add(user.getId());
+        filmStorage.addLike(id, userId);
     }
 
     public void deleteUserLikeFromFilmService(int id, int userId) {
-        User user = userStorage.getUserByIdStorage(userId);
-        getFilmById(id).getLikes().remove(user.getId());
+        filmStorage.deleteLike(id, userId);
     }
 
     public List<Film> getPopularFilmsService(int count) {

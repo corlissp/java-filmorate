@@ -62,6 +62,22 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(id);
     }
 
+    @Override
+    public boolean addFriend(int userId, int friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(userId);
+        updateUserStorage(user);
+        updateUserStorage(friend);
+        return true;
+    }
+
+    @Override
+    public boolean deleteFriend(int userId, int friendId) {
+        return false;
+    }
+
     public static class IdGenerator {
         private static int id = 1;
 

@@ -61,6 +61,22 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
+    @Override
+    public boolean addLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        film.addLike(userId);
+        updateFilmStorage(film);
+        return true;
+    }
+
+    @Override
+    public boolean deleteLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        film.deleteLike(userId);
+        updateFilmStorage(film);
+        return true;
+    }
+
     private static class IdGenerator {
         private static int id = 1;
 

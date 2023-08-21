@@ -1,15 +1,13 @@
 package ru.yandex.practicum.filmorate.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Min Danil 06.07.2023
@@ -17,22 +15,27 @@ import java.util.Set;
 
 @Data
 @Builder
-@Valid
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
-    @PositiveOrZero
     private int id;
-    @Email(message = "Неверный email.")
-    @NotNull
     private String email;
-    @NotNull
     private String login;
     private String name;
     private LocalDate birthday;
-    private Set<Integer> friends;
+    private List<Integer> friends;
 
-    public Set<Integer> getFriends() {
+    public boolean addFriend(final Integer id) {
+        return friends.add(id);
+    }
+
+    public boolean deleteFriend(final Integer id) {
+        return friends.remove(id);
+    }
+
+    public List<Integer> getFriends() {
         if (friends == null)
-            friends = new HashSet<>();
+            friends = new ArrayList<>();
         return friends;
     }
 }
