@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -31,6 +32,7 @@ public class UserService {
     }
 
     public User createUserService(User user) {
+        checkValidationUser(user);
         return userStorage.createUserStorage(user);
     }
 
@@ -64,10 +66,14 @@ public class UserService {
     }
 
     public void addFriend(int id, int friendId) {
+        if (id < 0 || friendId < 0)
+            throw new NotFoundException("Неверный формат id");
         userStorage.addFriend(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
+        if (id < 0 || friendId < 0)
+            throw new NotFoundException("Неверный формат id");
         userStorage.deleteFriend(id, friendId);
     }
 

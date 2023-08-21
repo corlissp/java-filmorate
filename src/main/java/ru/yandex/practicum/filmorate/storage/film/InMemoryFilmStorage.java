@@ -10,24 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.yandex.practicum.filmorate.service.FilmService.checkValidationFilm;
-
 /**
  * @author Min Danil 12.07.2023
  */
 
 @Slf4j
-@Component
+@Component("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private static final Map<Integer, Film> films = new HashMap<>();
 
     @Override
     public Film addFilmStorage(Film film) {
-        checkValidationFilm(film);
-        int id = IdGenerator.getFreeId();
-        film.setId(id);
-        films.put(id, film);
-        log.info("INFO: Фильм с id = {} сохранён.", id);
+        films.put(film.getId(), film);
+        log.info("INFO: Фильм с id = {} сохранён.", film.getId());
         return film;
     }
 

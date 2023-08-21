@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
-@Component
+@Component("GenreDBStorage")
 public class GenreDBStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 

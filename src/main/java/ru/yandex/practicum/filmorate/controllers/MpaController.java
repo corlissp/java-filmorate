@@ -17,7 +17,7 @@ import java.util.Collection;
 public class MpaController {
     private final MpaService mpaService;
 
-    @Autowired(required = false)
+    @Autowired
     public MpaController(MpaService mpaService) {
         this.mpaService = mpaService;
     }
