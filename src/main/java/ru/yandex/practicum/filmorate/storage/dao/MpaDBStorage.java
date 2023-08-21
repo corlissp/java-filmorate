@@ -18,6 +18,7 @@ public class MpaDBStorage implements MpaStorage {
     public MpaDBStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     @Override
     public Collection<Mpa> getAllMpa() {
         String sqlMpa = "select * from RATINGMPA";
@@ -30,8 +31,7 @@ public class MpaDBStorage implements MpaStorage {
         Mpa mpa;
         try {
             mpa = jdbcTemplate.queryForObject(sqlMpa, this::makeMpa, mpaId);
-        }
-        catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Возрастной рейтинг с идентификатором " +
                     mpaId + " не зарегистрирован!");
         }
