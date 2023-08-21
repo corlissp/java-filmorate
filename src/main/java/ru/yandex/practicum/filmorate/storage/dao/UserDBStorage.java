@@ -19,7 +19,7 @@ public class UserDBStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public UserDBStorage(JdbcTemplate jdbcTemplate){
+    public UserDBStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
