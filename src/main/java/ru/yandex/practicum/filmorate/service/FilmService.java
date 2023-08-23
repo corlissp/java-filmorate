@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
-import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,16 +21,18 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmService {
+
+    private static int increment = 0;
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
     public Film addFilmService(Film film) {
+        checkValidationFilm(film);
+        validate(film);
         return filmStorage.addFilmStorage(film);
     }
 
@@ -40,6 +42,7 @@ public class FilmService {
 
     public Film updateFilmService(Film film) {
         checkValidationFilm(film);
+        validate(film);
         return filmStorage.updateFilmStorage(film);
     }
 
@@ -75,13 +78,15 @@ public class FilmService {
     }
 
     public void addUserLikeToFilmService(int id, int userId) {
-        User user = userStorage.getUserByIdStorage(userId);
-        getFilmById(id).getLikes().add(user.getId());
+        if (id < 0 || userId < 0)
+            throw new NotFoundException("Неверный формат id");
+        filmStorage.addLike(id, userId);
     }
 
     public void deleteUserLikeFromFilmService(int id, int userId) {
-        User user = userStorage.getUserByIdStorage(userId);
-        getFilmById(id).getLikes().remove(user.getId());
+        if (id < 0 || userId < 0)
+            throw new NotFoundException("Неверный формат id");
+        filmStorage.deleteLike(id, userId);
     }
 
     public List<Film> getPopularFilmsService(int count) {
@@ -97,4 +102,15 @@ public class FilmService {
         LocalDate date = LocalDate.parse("1895-12-25", formatter);
         return realiseDate.isBefore(date);
     }
+
+    private void validate(Film film) {
+        if (film.getId() == 0) {
+            film.setId(getNextId());
+        }
+    }
+
+    private static int getNextId() {
+        return ++increment;
+    }
+
 }

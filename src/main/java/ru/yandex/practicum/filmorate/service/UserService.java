@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -25,11 +27,12 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public User createUserService(User user) {
+        checkValidationUser(user);
         return userStorage.createUserStorage(user);
     }
 
@@ -63,28 +66,20 @@ public class UserService {
     }
 
     public void addFriend(int id, int friendId) {
-        User user = getUserById(id);
-        User friendUser = getUserById(friendId);
-        if (user.getFriends() == null)
-            user.setFriends(new HashSet<>());
-        user.getFriends().add(friendId);
-        if (friendUser.getFriends() == null)
-            friendUser.setFriends(new HashSet<>());
-        friendUser.getFriends().add(id);
+        if (id < 0 || friendId < 0)
+            throw new NotFoundException("Неверный формат id");
+        userStorage.addFriend(id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
-        User user = getUserById(id);
-        User friendUser = getUserById(friendId);
-        if (user.getFriends() != null)
-            user.getFriends().remove(friendId);
-        if (friendUser.getFriends() != null)
-            friendUser.getFriends().remove(id);
+        if (id < 0 || friendId < 0)
+            throw new NotFoundException("Неверный формат id");
+        userStorage.deleteFriend(id, friendId);
     }
 
     public List<User> getUserFriends(int id) {
         if (userStorage.getUserByIdStorage(id).getFriends() == null)
-            userStorage.getUserByIdStorage(id).setFriends(new HashSet<>());
+            userStorage.getUserByIdStorage(id).setFriends(new ArrayList<>());
         return userStorage.getUserByIdStorage(id).getFriends()
                 .stream()
                 .map(this::getUserById)
@@ -113,7 +108,7 @@ public class UserService {
     }
 
     private static boolean isEmail(String emailAddress) {
-        String regexPattern = "^(.+)@(\\S+)$";
+        String regexPattern = "^(.+)@(\\S+)\\.\\w+$";
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
                 .matches();

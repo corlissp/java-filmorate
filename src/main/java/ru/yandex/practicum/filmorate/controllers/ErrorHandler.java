@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.models.ErrorResponse;
 /**
  * @author Min Danil 16.07.2023
  */
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
 
@@ -20,9 +22,10 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(value = ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(ValidationException e) {
         return new ErrorResponse(e.getMessage());
     }
+
 }
