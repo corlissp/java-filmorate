@@ -34,6 +34,7 @@ public class Film {
     private Mpa mpa;
     private List<Genre> genres;
     private List<Integer> likes;
+    // private Set<Director> directors;
 
     public boolean addLike(Integer userId) {
         return likes.add(userId);

@@ -40,7 +40,7 @@ public class UserDBStorage implements UserStorage {
         }, keyHolder);
 
         int id = Objects.requireNonNull(keyHolder.getKey()).intValue();
-
+        user.setId(id);
         if (user.getFriends() != null) {
             for (Integer friendId : user.getFriends()) {
                 addFriend(user.getId(), friendId);
