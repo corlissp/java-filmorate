@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.models.feed.Event;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -17,10 +19,12 @@ import java.util.Set;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final EventService eventService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EventService eventService) {
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @PostMapping
@@ -61,5 +65,10 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> getUserCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getUserCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<Event> getFeed(@Valid @PathVariable int id) {
+        return eventService.getFeed(id);
     }
 }

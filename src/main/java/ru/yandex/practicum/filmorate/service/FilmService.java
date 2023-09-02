@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.models.feed.EventOperation;
+import ru.yandex.practicum.filmorate.models.feed.EventType;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
@@ -24,10 +26,12 @@ public class FilmService {
 
     private static int increment = 0;
     private final FilmStorage filmStorage;
+    private final EventService eventService;
 
     @Autowired
-    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage) {
+    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage, EventService eventService) {
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public Film addFilmService(Film film) {
@@ -81,12 +85,14 @@ public class FilmService {
         if (id < 0 || userId < 0)
             throw new NotFoundException("Неверный формат id");
         filmStorage.addLike(id, userId);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, id);
     }
 
     public void deleteUserLikeFromFilmService(int id, int userId) {
         if (id < 0 || userId < 0)
             throw new NotFoundException("Неверный формат id");
         filmStorage.deleteLike(id, userId);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
     }
 
     public List<Film> getPopularFilmsService(int count) {

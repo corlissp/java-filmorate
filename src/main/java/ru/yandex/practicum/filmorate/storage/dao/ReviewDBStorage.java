@@ -200,16 +200,15 @@ public class ReviewDBStorage implements ReviewStorage {
         return Optional.empty();
     }
 
-    public Optional<Review> delete(int reviewId) {
-        Optional<Review> review = findReviewById(reviewId);
+    public Optional<Review> delete(Review review) {
         String sql = "delete from REVIEWS " +
                 "where REVIEW_ID = ?";
         int amountUpdateRows = jdbcTemplate.update(
                 sql,
-                reviewId
+                review.getReviewId()
         );
         if (amountUpdateRows > 0) {
-            return review;
+            return Optional.of(review);
         }
         return Optional.empty();
     }
