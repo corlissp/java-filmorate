@@ -10,6 +10,8 @@ import java.util.List;
 public interface FilmStorage {
     Film addFilmStorage(Film film);
 
+    void deleteFilm(int id);
+
     List<Film> getAllFilmsStorage();
 
     Film updateFilmStorage(Film film);
