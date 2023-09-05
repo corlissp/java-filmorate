@@ -73,6 +73,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return true;
     }
 
+    @Override
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+        return null;
+    }
+
     private static class IdGenerator {
         private static int id = 1;
 

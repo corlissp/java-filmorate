@@ -9,9 +9,7 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Min Danil 06.07.2023
@@ -34,7 +32,7 @@ public class Film {
     private Mpa mpa;
     private List<Genre> genres;
     private List<Integer> likes;
-    // private Set<Director> directors;
+    private Set<Director> directors;
 
     public boolean addLike(Integer userId) {
         return likes.add(userId);
@@ -42,6 +40,18 @@ public class Film {
 
     public boolean deleteLike(Integer userId) {
         return likes.remove(userId);
+    }
+
+    public List<Genre> getGenres() {
+        if (genres == null)
+            genres = new ArrayList<>();
+        return genres;
+    }
+
+    public Set<Director> getDirectors() {
+        if (directors == null)
+            directors = new HashSet<>();
+        return directors;
     }
 
     public List<Integer> getLikes() {
