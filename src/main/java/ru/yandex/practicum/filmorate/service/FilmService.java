@@ -113,4 +113,7 @@ public class FilmService {
         return ++increment;
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
 }

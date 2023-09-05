@@ -72,6 +72,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         return true;
     }
 
+    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        log.info("INFO: Получение общих фильмов пользователей с id = " + userId + " и с id = " + friendId + ".");
+        return getCommonFilms(userId, friendId);
+    }
+
     private static class IdGenerator {
         private static int id = 1;
 
