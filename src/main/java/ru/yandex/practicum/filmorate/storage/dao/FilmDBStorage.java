@@ -130,12 +130,6 @@ public class FilmDBStorage implements FilmStorage {
         return getFilmByIdStorage(film.getId());
     }
 
-    public boolean deleteFilm(Film film) {
-        String sqlQuery = "delete from FILM where FILMID = ?";
-        jdbcTemplate.update(sqlQuery, film.getId());
-        return true;
-    }
-
     @Override
     public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
         try {
