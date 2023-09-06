@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Min Danil 12.07.2023
@@ -77,6 +74,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         updateFilmStorage(film);
         return true;
     }
+
 
     private static class IdGenerator {
         private static int id = 1;

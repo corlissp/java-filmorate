@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ru.yandex.practicum.filmorate.service.UserService.checkValidationUser;
 
@@ -88,6 +85,8 @@ public class InMemoryUserStorage implements UserStorage {
     public boolean deleteFriend(int userId, int friendId) {
         return false;
     }
+
+
 
     public static class IdGenerator {
         private static int id = 1;
