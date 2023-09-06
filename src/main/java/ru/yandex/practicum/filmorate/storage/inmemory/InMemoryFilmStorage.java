@@ -1,14 +1,12 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Min Danil 12.07.2023
@@ -24,6 +22,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(film.getId(), film);
         log.info("INFO: Фильм с id = {} сохранён.", film.getId());
         return film;
+    }
+
+    @Override
+    public void deleteFilm(int id) {
+        films.remove(id);
+        log.info("INFO: Фильм с id = {} удалён.", id);
     }
 
     @Override
@@ -70,6 +74,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         film.deleteLike(userId);
         updateFilmStorage(film);
         return true;
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+        return null;
     }
 
     @Override
