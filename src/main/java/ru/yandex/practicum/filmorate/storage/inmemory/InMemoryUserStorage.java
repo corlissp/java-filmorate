@@ -1,13 +1,11 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ru.yandex.practicum.filmorate.service.UserService.checkValidationUser;
 
@@ -43,6 +41,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public void deleteUserStorage(int id) {
+        if (users.containsKey(id)) {
+            users.remove(id);
+            log.info("INFO: Пользователь с id = {} удалён.", id);
+        } else {
+            log.error("ERROR: Пользователь с id = {} не найден.", id);
+            throw new NotFoundException("Пользователь с id = " + id + " не найден.");
+        }
+    }
+
+    @Override
     public List<User> getAllUsersStorage() {
         List<User> usersList = new ArrayList<>();
         for (Integer key : users.keySet())
@@ -75,6 +84,8 @@ public class InMemoryUserStorage implements UserStorage {
     public boolean deleteFriend(int userId, int friendId) {
         return false;
     }
+
+
 
     public static class IdGenerator {
         private static int id = 1;

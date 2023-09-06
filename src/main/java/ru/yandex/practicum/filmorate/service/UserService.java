@@ -46,6 +46,10 @@ public class UserService {
         return userStorage.updateUserStorage(user);
     }
 
+    public void deleteUserService(int id) {
+        userStorage.deleteUserStorage(id);
+    }
+
     public List<User> getAllUsersService() {
         return userStorage.getAllUsersStorage();
     }

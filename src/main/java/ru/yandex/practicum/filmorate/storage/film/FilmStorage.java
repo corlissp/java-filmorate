@@ -10,6 +10,8 @@ import java.util.List;
 public interface FilmStorage {
     Film addFilmStorage(Film film);
 
+    void deleteFilm(int id);
+
     List<Film> getAllFilmsStorage();
 
     Film updateFilmStorage(Film film);
@@ -19,4 +21,8 @@ public interface FilmStorage {
     boolean addLike(int filmId, int userId);
 
     boolean deleteLike(int filmId, int userId);
+
+    List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy);
+
+    List<Film> getCommonFilms(int userId, int filmId);
 }

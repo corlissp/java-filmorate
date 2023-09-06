@@ -50,6 +50,10 @@ public class FilmService {
         return filmStorage.updateFilmStorage(film);
     }
 
+    public void deleteFilmService(int idFilm) {
+        filmStorage.deleteFilm(idFilm);
+    }
+
     public static void checkValidationFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("ERROR: Неверный формат name.");
@@ -115,8 +119,15 @@ public class FilmService {
         }
     }
 
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int directorId, String sortBy) {
+        return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
+    }
+
     private static int getNextId() {
         return ++increment;
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
 }
