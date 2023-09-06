@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.feed.EventOperation;
 import ru.yandex.practicum.filmorate.models.feed.EventType;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,13 +27,11 @@ public class FilmService {
     private static int increment = 0;
     private final FilmStorage filmStorage;
     private final EventService eventService;
-    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage, EventService eventService, LikeStorage likeStorage) {
+    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage, EventService eventService) {
         this.filmStorage = filmStorage;
         this.eventService = eventService;
-        this.likeStorage = likeStorage;
     }
 
     public Film addFilmService(Film film) {
@@ -93,7 +90,6 @@ public class FilmService {
             throw new NotFoundException("Неверный формат id");
         filmStorage.addLike(id, userId);
         eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, id);
-        likeStorage.addLike(id,userId);
     }
 
     public void deleteUserLikeFromFilmService(int id, int userId) {
@@ -101,7 +97,6 @@ public class FilmService {
             throw new NotFoundException("Неверный формат id");
         filmStorage.deleteLike(id, userId);
         eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
-        likeStorage.deleteLike(id, userId);
     }
 
     public List<Film> getPopularFilmsService(int count, long genreId, int year) {

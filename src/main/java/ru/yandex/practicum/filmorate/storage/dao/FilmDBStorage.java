@@ -203,18 +203,6 @@ public class FilmDBStorage implements FilmStorage {
         return jdbcTemplate.query(commonFilms, this::makeFilm, userId, friendId);
     }
 
-    public Collection<Film> getMostPopularFilms(int count) {
-        String sqlMostPopular = "select count(L.LIKEID) as likeRate" +
-                ",FILM.FILMID" +
-                ",FILM.NAME ,FILM.DESCRIPTION ,RELEASEDATE ,DURATION ,RATE ,R.RATINGID, R.NAME, R.DESCRIPTION from FILM " +
-                "left join LIKES L on L.FILMID = FILM.FILMID " +
-                "inner join RATINGMPA R on R.RATINGID = FILM.RATINGID " +
-                "group by FILM.FILMID " +
-                "ORDER BY likeRate desc " +
-                "limit ?";
-        return jdbcTemplate.query(sqlMostPopular, this::makeFilm, count);
-    }
-
     private Film makeFilm(ResultSet resultSet, int rowNum) throws SQLException {
         int filmId = resultSet.getInt("FilmID");
         Film film = Film.builder()
