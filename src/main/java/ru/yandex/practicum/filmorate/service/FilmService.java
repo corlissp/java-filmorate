@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.feed.EventOperation;
 import ru.yandex.practicum.filmorate.models.feed.EventType;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -27,11 +28,13 @@ public class FilmService {
     private static int increment = 0;
     private final FilmStorage filmStorage;
     private final EventService eventService;
+    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage, EventService eventService) {
+    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage, EventService eventService, LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.eventService = eventService;
+        this.likeStorage = likeStorage;
     }
 
     public Film addFilmService(Film film) {
@@ -90,6 +93,7 @@ public class FilmService {
             throw new NotFoundException("Неверный формат id");
         filmStorage.addLike(id, userId);
         eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, id);
+        likeStorage.addLike(id,userId);
     }
 
     public void deleteUserLikeFromFilmService(int id, int userId) {
@@ -97,14 +101,49 @@ public class FilmService {
             throw new NotFoundException("Неверный формат id");
         filmStorage.deleteLike(id, userId);
         eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
+        likeStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getPopularFilmsService(int count) {
-        return filmStorage.getAllFilmsStorage()
+    public List<Film> getPopularFilmsService(int count, long genreId, int year) {
+        List<Film> filmByYear = filmStorage.getAllFilmsStorage()
+                .stream()
+                .filter(film -> film.getReleaseDate().getYear() == year)
+                .limit(count)
+                .collect(Collectors.toList());
+        List<Film> filmByGenreId = filmStorage.getAllFilmsStorage()
+                .stream()
+                .filter(film -> film.getGenres()
+                        .stream()
+                        .anyMatch(genre -> genre.getId() == genreId))
+                .collect(Collectors.toList());
+        if (year != 0 && genreId == 0) {
+            return filmByYear.stream()
+                    .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else if (year == 0 && genreId != 0) {
+            return filmByGenreId.stream()
+                    .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else if (year == 0 && genreId == 0) {
+            return filmStorage.getAllFilmsStorage()
                 .stream()
                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());
+        } else {
+            filmByGenreId = filmByYear.stream()
+                    .filter(film -> film.getGenres()
+                            .stream()
+                            .anyMatch(genre -> genre.getId() == genreId))
+                    .collect(Collectors.toList());
+
+         return filmByGenreId.stream()
+                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                 .limit(10)
+                 .collect(Collectors.toList());
+        }
     }
 
     private static boolean isBeforeDate(LocalDate realiseDate) {
