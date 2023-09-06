@@ -200,7 +200,7 @@ public class FilmDBStorage implements FilmStorage {
                 "left join film as f " +
                 "on t1.filmid = f.filmid " +
                 "inner join ratingmpa as r on r.ratingid = f.ratingid ";
-        return jdbcTemplate.query(commonFilms, (resultSet, rowNum) -> makeFilm(resultSet), userId, friendId);
+        return jdbcTemplate.query(commonFilms, this::makeFilm, userId, friendId);
     }
 
     public Collection<Film> getMostPopularFilms(int count) {
