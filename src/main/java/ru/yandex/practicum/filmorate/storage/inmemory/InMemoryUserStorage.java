@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -15,7 +14,6 @@ import static ru.yandex.practicum.filmorate.service.UserService.checkValidationU
  */
 
 @Slf4j
-@Component
 public class InMemoryUserStorage implements UserStorage {
     private static final Map<Integer, User> users = new HashMap<>();
 

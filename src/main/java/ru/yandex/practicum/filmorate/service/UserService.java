@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.models.feed.EventOperation;
+import ru.yandex.practicum.filmorate.models.feed.EventType;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -25,11 +27,14 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     @Autowired
-    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage, EventService eventService) {
         this.userStorage = userStorage;
+        this.eventService = eventService;
     }
+
 
     public User createUserService(User user) {
         checkValidationUser(user);
@@ -73,12 +78,14 @@ public class UserService {
         if (id < 0 || friendId < 0)
             throw new NotFoundException("Неверный формат id");
         userStorage.addFriend(id, friendId);
+        eventService.createEvent(id, EventType.FRIEND, EventOperation.ADD, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
         if (id < 0 || friendId < 0)
             throw new NotFoundException("Неверный формат id");
         userStorage.deleteFriend(id, friendId);
+        eventService.createEvent(id, EventType.FRIEND, EventOperation.REMOVE, friendId);
     }
 
     public List<User> getUserFriends(int id) {

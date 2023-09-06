@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 
@@ -29,7 +30,7 @@ public class UserControllerTest {
         user.setName("Danil");
         user.setBirthday(LocalDate.parse("2000-07-23"));
         user.setEmail("danilwottwin@yandex.ru");
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
+        userController = new UserController(new UserService(new InMemoryUserStorage(), new EventService(null, null)), new EventService(null, null));
     }
 
     @Test
