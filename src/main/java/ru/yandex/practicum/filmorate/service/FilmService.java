@@ -99,12 +99,46 @@ public class FilmService {
         eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
     }
 
-    public List<Film> getPopularFilmsService(int count) {
-        return filmStorage.getAllFilmsStorage()
+    public List<Film> getPopularFilmsService(int count, long genreId, int year) {
+        List<Film> filmByYear = filmStorage.getAllFilmsStorage()
+                .stream()
+                .filter(film -> film.getReleaseDate().getYear() == year)
+                .limit(count)
+                .collect(Collectors.toList());
+        List<Film> filmByGenreId = filmStorage.getAllFilmsStorage()
+                .stream()
+                .filter(film -> film.getGenres()
+                        .stream()
+                        .anyMatch(genre -> genre.getId() == genreId))
+                .collect(Collectors.toList());
+        if (year != 0 && genreId == 0) {
+            return filmByYear.stream()
+                    .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else if (year == 0 && genreId != 0) {
+            return filmByGenreId.stream()
+                    .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else if (year == 0 && genreId == 0) {
+            return filmStorage.getAllFilmsStorage()
                 .stream()
                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());
+        } else {
+            filmByGenreId = filmByYear.stream()
+                    .filter(film -> film.getGenres()
+                            .stream()
+                            .anyMatch(genre -> genre.getId() == genreId))
+                    .collect(Collectors.toList());
+
+         return filmByGenreId.stream()
+                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                 .limit(10)
+                 .collect(Collectors.toList());
+        }
     }
 
     private static boolean isBeforeDate(LocalDate realiseDate) {
