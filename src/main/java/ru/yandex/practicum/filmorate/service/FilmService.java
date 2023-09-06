@@ -120,4 +120,8 @@ public class FilmService {
     private static int getNextId() {
         return ++increment;
     }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
 }

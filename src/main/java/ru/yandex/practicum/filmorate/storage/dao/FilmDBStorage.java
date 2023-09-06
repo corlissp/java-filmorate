@@ -187,6 +187,22 @@ public class FilmDBStorage implements FilmStorage {
         return true;
     }
 
+    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        String commonFilms = "select f.filmid, f.name, f.description, f.releasedate, f.duration, f.rate, " +
+                "r.ratingid, r.name, r.description " +
+                "from (select l1.filmid from likes as l1 " +
+                "where l1.userid = ?) as t1 " +
+                "inner join (select l2.filmid " +
+                "from likes as l2 " +
+                "where l2.userid = ?) as t2 " +
+                "on t1.filmid = t2.filmid " +
+                "left join film as f " +
+                "on t1.filmid = f.filmid " +
+                "inner join ratingmpa as r on r.ratingid = f.ratingid ";
+        return jdbcTemplate.query(commonFilms, this::makeFilm, userId, friendId);
+    }
+
     public Collection<Film> getMostPopularFilms(int count) {
         String sqlMostPopular = "select count(L.LIKEID) as likeRate" +
                 ",FILM.FILMID" +
@@ -236,5 +252,4 @@ public class FilmDBStorage implements FilmStorage {
         String sqlGetLikes = "select USERID from LIKES where FILMID = ?";
         return jdbcTemplate.queryForList(sqlGetLikes, Integer.class, filmId);
     }
-
 }
