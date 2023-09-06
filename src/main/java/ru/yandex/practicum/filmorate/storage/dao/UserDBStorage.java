@@ -61,6 +61,12 @@ public class UserDBStorage implements UserStorage {
     }
 
     @Override
+    public void deleteUserStorage(int id) {
+        String sqlQuery = "delete from USERS where UserId = ?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
+    @Override
     public List<User> getAllUsersStorage() {
         String sqlAllUsers = "select * from USERS";
         return jdbcTemplate.query(sqlAllUsers, (rs, rowNum) -> makeUser(rs));

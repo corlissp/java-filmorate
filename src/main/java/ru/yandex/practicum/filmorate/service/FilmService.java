@@ -46,6 +46,10 @@ public class FilmService {
         return filmStorage.updateFilmStorage(film);
     }
 
+    public void deleteFilmService(int idFilm) {
+        filmStorage.deleteFilm(idFilm);
+    }
+
     public static void checkValidationFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("ERROR: Неверный формат name.");
@@ -116,5 +120,4 @@ public class FilmService {
     private static int getNextId() {
         return ++increment;
     }
-
 }
