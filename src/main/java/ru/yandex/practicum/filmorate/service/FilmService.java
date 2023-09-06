@@ -113,6 +113,10 @@ public class FilmService {
         }
     }
 
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int directorId, String sortBy) {
+        return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
+    }
+
     private static int getNextId() {
         return ++increment;
     }

@@ -1,9 +1,10 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.*;
 
@@ -75,6 +76,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         return true;
     }
 
+    @Override
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+        return null;
+    }
 
     private static class IdGenerator {
         private static int id = 1;
