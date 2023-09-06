@@ -89,6 +89,12 @@ public class FilmDBStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilm(int id) {
+        String sqlQuery = "delete from FILM where FilmID = ?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
+    @Override
     public Film updateFilmStorage(Film film) {
         String sqlQuery = "update FILM " +
                 "set NAME = ?, DESCRIPTION = ?, RELEASEDATE = ?, DURATION = ?, RATE = ? ,RATINGID = ? " +
@@ -115,11 +121,6 @@ public class FilmDBStorage implements FilmStorage {
         return getFilmByIdStorage(film.getId());
     }
 
-    public boolean deleteFilm(Film film) {
-        String sqlQuery = "delete from FILM where FILMID = ?";
-        jdbcTemplate.update(sqlQuery, film.getId());
-        return true;
-    }
 
     @Override
     public boolean addLike(int filmId, int userId) {

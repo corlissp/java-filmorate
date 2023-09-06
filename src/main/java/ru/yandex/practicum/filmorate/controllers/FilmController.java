@@ -27,6 +27,11 @@ public class FilmController {
         return filmService.addFilmService(film);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable int id) {
+        filmService.deleteFilmService(id);
+    }
+
     @GetMapping
     public List<Film> getAllFilms() {
         return filmService.getAllFilmsService();

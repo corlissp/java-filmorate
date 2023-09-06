@@ -45,6 +45,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public void deleteUserStorage(int id) {
+        if (users.containsKey(id)) {
+            users.remove(id);
+            log.info("INFO: Пользователь с id = {} удалён.", id);
+        } else {
+            log.error("ERROR: Пользователь с id = {} не найден.", id);
+            throw new NotFoundException("Пользователь с id = " + id + " не найден.");
+        }
+    }
+
+    @Override
     public List<User> getAllUsersStorage() {
         List<User> usersList = new ArrayList<>();
         for (Integer key : users.keySet())
