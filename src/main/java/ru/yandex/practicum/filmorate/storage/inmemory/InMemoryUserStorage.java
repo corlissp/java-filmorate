@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.inmemory;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -86,7 +87,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
 
-
     public static class IdGenerator {
         private static int id = 1;
 
@@ -95,5 +95,11 @@ public class InMemoryUserStorage implements UserStorage {
                 id++;
             return id;
         }
+    }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        log.info("INFO: Получение рекоммендаций для пользователя с id = {}.", userId);
+        return getRecommendations(userId);
     }
 }

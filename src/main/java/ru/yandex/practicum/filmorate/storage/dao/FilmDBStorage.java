@@ -203,7 +203,7 @@ public class FilmDBStorage implements FilmStorage {
         return jdbcTemplate.query(commonFilms, this::makeFilm, userId, friendId);
     }
 
-    private Film makeFilm(ResultSet resultSet, int rowNum) throws SQLException {
+    public Film makeFilm(ResultSet resultSet, int rowNum) throws SQLException {
         int filmId = resultSet.getInt("FilmID");
         Film film = Film.builder()
                 .id(resultSet.getInt("FilmID"))

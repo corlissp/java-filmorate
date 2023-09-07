@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.models.feed.EventOperation;
 import ru.yandex.practicum.filmorate.models.feed.EventType;
@@ -123,5 +124,9 @@ public class UserService {
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
                 .matches();
+    }
+
+    public List<Film> getRecommendations(int userId) {
+        return userStorage.getRecommendations(userId);
     }
 }

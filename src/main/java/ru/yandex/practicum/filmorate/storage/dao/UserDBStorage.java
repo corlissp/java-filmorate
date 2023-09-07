@@ -7,7 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.models.*;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.*;
@@ -19,8 +19,11 @@ public class UserDBStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public UserDBStorage(JdbcTemplate jdbcTemplate) {
+    private final FilmDBStorage filmDBStorage;
+
+    public UserDBStorage(JdbcTemplate jdbcTemplate, FilmDBStorage filmDBStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.filmDBStorage = filmDBStorage;
     }
 
     @Override
@@ -127,5 +130,27 @@ public class UserDBStorage implements UserStorage {
                 "where USERID = ? and FRIENDID = ?";
         jdbcTemplate.update(sqlSetStatus, friendId, userId);
         return true;
+    }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        String recommendationsQuery = "select f.filmid, f.name, f.description, f.releasedate, f.duration, f.rate, " +
+                "r.ratingid, r.name, r.description " +
+                "from (select l1.filmid from likes as l1 " +
+                "where l1.userid in (" +
+                "select friendId from friendship as fs " +
+                "where fs.userId = ? " +
+                "and fs.status = true)) as t1 " +
+                "left join (select l2.filmid " +
+                "from likes as l2 " +
+                "where l2.userid = ?) as t2 " +
+                "on t1.filmid = t2.filmid " +
+                "left join film as f " +
+                "on t1.filmid = f.filmid " +
+                "inner join ratingmpa as r on r.ratingid = f.ratingid " +
+                "where t2.filmId is null";
+
+        return jdbcTemplate.query(recommendationsQuery,
+                (resultSet, rowNum) -> filmDBStorage.makeFilm(resultSet, rowNum), userId, userId);
     }
 }
