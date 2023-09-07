@@ -48,7 +48,8 @@ public class FilmDBStorage implements FilmStorage {
             throw new NotFoundException("Фильм с идентификатором " +
                     filmId + " не зарегистрирован!");
         }
-        log.info("Найден фильм: {} {}", film.getId(), film.getName());
+        if (film != null)
+            log.info("Найден фильм: {} {}", film.getId(), film.getName());
         return film;
     }
 
@@ -223,10 +224,8 @@ public class FilmDBStorage implements FilmStorage {
                 film.getGenres().add(genre);
             }
         }
-        if (likes != null) {
-            for (Integer like : likes) {
+        for (Integer like : likes) {
                 film.getLikes().add(like);
-            }
         }
         if (directors != null) {
             for (Director director : directors) {
@@ -234,6 +233,32 @@ public class FilmDBStorage implements FilmStorage {
             }
         }
         return film;
+    }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        String sql =
+                "SELECT * FROM FILM F " + //(4)
+                        "JOIN ratingmpa R ON F.RATINGID = R.RATINGID " +
+                        "WHERE F.FILMID IN (" +
+                        "SELECT FILMID FROM LIKES " + //(2)
+                        "WHERE USERID IN (" +
+                        "SELECT L1.USERID FROM LIKES L1 " + //(1)
+                        "RIGHT JOIN LIKES L2 ON L2.FILMID = L1.FILMID " +
+                        "GROUP BY L1.USERID, L2.USERID " +
+                        "HAVING L1.USERID IS NOT NULL AND " +
+                        "L1.USERID != ? AND " +
+                        "L2.USERID = ? " +
+                        "ORDER BY COUNT(L1.USERID) DESC " +
+                        "LIMIT 3 " +
+                        ") " +
+                        "AND FILMID NOT IN (" +
+                        "SELECT FILMID FROM LIKES " + //(3)
+                        "WHERE USERID = ?" +
+                        ")" +
+                        ")";
+
+        return jdbcTemplate.query(sql, this::makeFilm, userId, userId, userId);
     }
 
     private List<Integer> getFilmLikes(int filmId) {

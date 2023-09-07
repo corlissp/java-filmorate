@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.User;
 
 import java.util.List;
@@ -23,5 +22,4 @@ public interface UserStorage {
 
     boolean deleteFriend(int userId, int friendId);
 
-    List<Film> getRecommendations(int userId);
 }
