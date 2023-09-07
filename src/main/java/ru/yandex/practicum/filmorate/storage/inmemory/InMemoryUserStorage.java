@@ -5,7 +5,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static ru.yandex.practicum.filmorate.service.UserService.checkValidationUser;
 
@@ -84,7 +87,6 @@ public class InMemoryUserStorage implements UserStorage {
     public boolean deleteFriend(int userId, int friendId) {
         return false;
     }
-
 
 
     public static class IdGenerator {

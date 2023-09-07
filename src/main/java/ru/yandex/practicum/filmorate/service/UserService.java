@@ -6,9 +6,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.models.feed.EventOperation;
 import ru.yandex.practicum.filmorate.models.feed.EventType;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -28,11 +30,15 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
     private final EventService eventService;
+    private final FilmStorage filmStorage;
 
     @Autowired
-    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage, EventService eventService) {
+    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage,
+                       EventService eventService,
+                       @Qualifier("FilmDBStorage") FilmStorage filmStorage) {
         this.userStorage = userStorage;
         this.eventService = eventService;
+        this.filmStorage = filmStorage;
     }
 
 
@@ -123,5 +129,9 @@ public class UserService {
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
                 .matches();
+    }
+
+    public List<Film> getRecommendations(int userId) {
+        return filmStorage.getRecommendations(userId);
     }
 }
