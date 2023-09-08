@@ -20,6 +20,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("FilmDBStorage")
 public class FilmDBStorage implements FilmStorage {
@@ -206,44 +207,44 @@ public class FilmDBStorage implements FilmStorage {
 
     public Film makeFilm(ResultSet resultSet, int rowNum) throws SQLException {
         int filmId = resultSet.getInt("FilmID");
-        Film film = Film.builder()
+        List<Genre> genres = (List<Genre>) genreService.getFilmGenres(filmId);
+        List<Integer> likes = getFilmLikes(filmId);
+        Set<Director> directors = new HashSet<>(directorStorage.getDirectorsByFilm(filmId));
+        return Film.builder()
                 .id(resultSet.getInt("FilmID"))
                 .name(resultSet.getString("Name"))
                 .description(resultSet.getString("Description"))
                 .releaseDate(resultSet.getDate("ReleaseDate").toLocalDate())
                 .duration(resultSet.getInt("Duration"))
-                .mpa(new Mpa(resultSet.getInt("RatingID"),
-                        resultSet.getString("RatingMPA.Name"),
-                        resultSet.getString("Description")))
+                .mpa(makeMpaById(resultSet.getInt("RatingID")))
+                .genres(genres)
+                .likes(likes)
+                .directors(directors)
                 .build();
-        List<Genre> genres = (List<Genre>) genreService.getFilmGenres(filmId);
-        List<Integer> likes = getFilmLikes(filmId);
-        List<Director> directors = directorStorage.getDirectorsByFilm(filmId);
-        if (genres != null) {
-            for (Genre genre : genres) {
-                film.getGenres().add(genre);
-            }
-        }
-        for (Integer like : likes) {
-                film.getLikes().add(like);
-        }
-        if (directors != null) {
-            for (Director director : directors) {
-                film.getDirectors().add(director);
-            }
-        }
-        return film;
+    }
+
+    private Mpa makeMpaById(int mpaId) {
+        String sqlQuery = "select name from RATINGMPA where ratingid = ?";
+        String mpaName = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeMpaName(rs), mpaId).get(0);
+        return Mpa.builder()
+                .id(mpaId)
+                .name(mpaName)
+                .build();
+    }
+
+    private String makeMpaName(ResultSet rs) throws SQLException {
+        return rs.getString("Name");
     }
 
     @Override
     public List<Film> getRecommendations(int userId) {
         String sql =
-                "SELECT * FROM FILM F " + //(4)
+                "SELECT * FROM FILM F " +
                         "JOIN ratingmpa R ON F.RATINGID = R.RATINGID " +
                         "WHERE F.FILMID IN (" +
-                        "SELECT FILMID FROM LIKES " + //(2)
+                        "SELECT FILMID FROM LIKES " +
                         "WHERE USERID IN (" +
-                        "SELECT L1.USERID FROM LIKES L1 " + //(1)
+                        "SELECT L1.USERID FROM LIKES L1 " +
                         "RIGHT JOIN LIKES L2 ON L2.FILMID = L1.FILMID " +
                         "GROUP BY L1.USERID, L2.USERID " +
                         "HAVING L1.USERID IS NOT NULL AND " +
@@ -253,12 +254,52 @@ public class FilmDBStorage implements FilmStorage {
                         "LIMIT 3 " +
                         ") " +
                         "AND FILMID NOT IN (" +
-                        "SELECT FILMID FROM LIKES " + //(3)
+                        "SELECT FILMID FROM LIKES " +
                         "WHERE USERID = ?" +
                         ")" +
                         ")";
 
         return jdbcTemplate.query(sql, this::makeFilm, userId, userId, userId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        String[] directorAndTitle = by.split(",");
+        switch (directorAndTitle.length) {
+            case 1:
+                if (directorAndTitle[0].equals("title")) {
+                    return getFilmsByTitle(query);
+                }
+                return getFilmsByDirector(query)
+                        .stream()
+                        .filter(film -> !film.getDirectors().isEmpty())
+                        .collect(Collectors.toList());
+            case 2:
+                List<Film> filmsSearchByDirector = getFilmsByDirector(query)
+                        .stream()
+                        .filter(film -> !film.getDirectors().isEmpty())
+                        .collect(Collectors.toList());
+                List<Film> filmsSearchByTitle = getFilmsByTitle(query);
+                filmsSearchByTitle.addAll(filmsSearchByDirector);
+                filmsSearchByTitle.sort((t1, t2) -> t2.getLikes().size() - t1.getLikes().size());
+                return filmsSearchByTitle;
+        }
+        return new ArrayList<>();
+    }
+
+    private List<Film> getFilmsByTitle(String query) {
+        String sql = "SELECT * FROM FILM WHERE LCASE(NAME) " +
+                "LIKE '%" + query.toLowerCase() + "%'";
+        return jdbcTemplate.query(sql, this::makeFilm);
+
+    }
+
+    private List<Film> getFilmsByDirector(String query) {
+        String sql = "SELECT * FROM FILM WHERE FILMID IN " +
+                "(SELECT FILMID FROM FILM_DIRECTOR " +
+                "where DIRECTOR_ID IN (SELECT DIRECTOR.DIRECTOR_ID FROM DIRECTOR " +
+                "where LCASE(DIRECTOR_NAME) like '%" + query.toLowerCase() + "%'))";
+        return jdbcTemplate.query(sql, this::makeFilm);
     }
 
     private List<Integer> getFilmLikes(int filmId) {

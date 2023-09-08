@@ -121,7 +121,7 @@ public class FilmService {
                     .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
                     .limit(count)
                     .collect(Collectors.toList());
-        } else if (year == 0 && genreId == 0) {
+        } else if (year == 0) {
             return filmStorage.getAllFilmsStorage()
                 .stream()
                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
@@ -141,6 +141,9 @@ public class FilmService {
         }
     }
 
+    public List<Film> searchFilms(String query, String by) {
+        return filmStorage.searchFilms(query, by);
+    }
     private static boolean isBeforeDate(LocalDate realiseDate) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse("1895-12-25", formatter);
