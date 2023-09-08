@@ -34,12 +34,12 @@ public class Film {
     private List<Integer> likes;
     private Set<Director> directors;
 
-    public boolean addLike(Integer userId) {
-        return likes.add(userId);
+    public void addLike(Integer userId) {
+        likes.add(userId);
     }
 
-    public boolean deleteLike(Integer userId) {
-        return likes.remove(userId);
+    public void deleteLike(Integer userId) {
+        likes.remove(userId);
     }
 
     public List<Genre> getGenres() {

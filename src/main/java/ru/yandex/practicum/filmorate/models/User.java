@@ -30,12 +30,8 @@ public class User {
     private LocalDate birthday;
     private List<Integer> friends;
 
-    public boolean addFriend(final Integer id) {
-        return friends.add(id);
-    }
-
-    public boolean deleteFriend(final Integer id) {
-        return friends.remove(id);
+    public void addFriend(final Integer id) {
+        friends.add(id);
     }
 
     public List<Integer> getFriends() {
