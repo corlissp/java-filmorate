@@ -144,6 +144,7 @@ public class FilmService {
     public List<Film> searchFilms(String query, String by) {
         return filmStorage.searchFilms(query, by);
     }
+
     private static boolean isBeforeDate(LocalDate realiseDate) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse("1895-12-25", formatter);
