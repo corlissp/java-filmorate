@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.models.Director;
@@ -15,21 +16,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/directors")
 @Validated
+@Slf4j
+@RequiredArgsConstructor
 public class DirectorController {
     private final DirectorService directorService;
 
-    @Autowired
-    public DirectorController(DirectorService directorService) {
-        this.directorService = directorService;
-    }
-
     @GetMapping
     public List<Director> getAllDirectors() {
+        log.info("Получен запрос GET к эндпоинту: /directors");
         return directorService.getAllDirectors();
     }
 
     @GetMapping("/{id}")
     public Director getDirectorById(@PathVariable int id) {
+        log.info("Получен запрос GET к эндпоинту: /directors/{}", id);
         return directorService.getDirectorById(id);
     }
 

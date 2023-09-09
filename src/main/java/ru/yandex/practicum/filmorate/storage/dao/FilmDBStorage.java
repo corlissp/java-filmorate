@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -23,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component("FilmDBStorage")
+@Primary
 public class FilmDBStorage implements FilmStorage {
 
     private final Logger log = LoggerFactory.getLogger(FilmDBStorage.class);
