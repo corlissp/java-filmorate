@@ -1,12 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.models.feed.EventOperation;
+import ru.yandex.practicum.filmorate.models.feed.EventType;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -23,13 +27,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
+    @Qualifier("UserDBStorage")
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserService(@Qualifier("UserDBStorage") UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final EventService eventService;
+    private final FilmStorage filmStorage;
 
     public User createUserService(User user) {
         checkValidationUser(user);
@@ -39,6 +42,10 @@ public class UserService {
     public User updateUserService(User user) {
         checkValidationUser(user);
         return userStorage.updateUserStorage(user);
+    }
+
+    public void deleteUserService(int id) {
+        userStorage.deleteUserStorage(id);
     }
 
     public List<User> getAllUsersService() {
@@ -69,12 +76,14 @@ public class UserService {
         if (id < 0 || friendId < 0)
             throw new NotFoundException("Неверный формат id");
         userStorage.addFriend(id, friendId);
+        eventService.createEvent(id, EventType.FRIEND, EventOperation.ADD, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
         if (id < 0 || friendId < 0)
             throw new NotFoundException("Неверный формат id");
         userStorage.deleteFriend(id, friendId);
+        eventService.createEvent(id, EventType.FRIEND, EventOperation.REMOVE, friendId);
     }
 
     public List<User> getUserFriends(int id) {
@@ -112,5 +121,9 @@ public class UserService {
         return Pattern.compile(regexPattern)
                 .matcher(emailAddress)
                 .matches();
+    }
+
+    public List<Film> getRecommendations(int userId) {
+        return filmStorage.getRecommendations(userId);
     }
 }

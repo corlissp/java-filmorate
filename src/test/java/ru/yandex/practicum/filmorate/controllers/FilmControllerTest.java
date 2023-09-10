@@ -4,8 +4,9 @@ import org.junit.jupiter.api.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.parse("2014-10-29"));
         film.setDuration(120);
         film.setDescription("Our planet in future. People have not got food on the Earth.");
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new EventService(null, null)));
     }
 
     @Test

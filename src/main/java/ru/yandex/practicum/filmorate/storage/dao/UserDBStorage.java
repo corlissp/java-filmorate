@@ -7,7 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.models.User;
+import ru.yandex.practicum.filmorate.models.*;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.*;
@@ -18,6 +18,7 @@ import java.util.Objects;
 public class UserDBStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+
 
     public UserDBStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -40,7 +41,7 @@ public class UserDBStorage implements UserStorage {
         }, keyHolder);
 
         int id = Objects.requireNonNull(keyHolder.getKey()).intValue();
-
+        user.setId(id);
         if (user.getFriends() != null) {
             for (Integer friendId : user.getFriends()) {
                 addFriend(user.getId(), friendId);
@@ -58,6 +59,12 @@ public class UserDBStorage implements UserStorage {
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
 
         return getUserByIdStorage(user.getId());
+    }
+
+    @Override
+    public void deleteUserStorage(int id) {
+        String sqlQuery = "delete from USERS where UserId = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     @Override
@@ -122,4 +129,5 @@ public class UserDBStorage implements UserStorage {
         jdbcTemplate.update(sqlSetStatus, friendId, userId);
         return true;
     }
+
 }

@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.models.feed.EventOperation;
+import ru.yandex.practicum.filmorate.models.feed.EventType;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
@@ -20,15 +21,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
     private static int increment = 0;
     private final FilmStorage filmStorage;
-
-    @Autowired
-    public FilmService(@Qualifier("FilmDBStorage") FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
-    }
+    private final EventService eventService;
 
     public Film addFilmService(Film film) {
         checkValidationFilm(film);
@@ -44,6 +42,10 @@ public class FilmService {
         checkValidationFilm(film);
         validate(film);
         return filmStorage.updateFilmStorage(film);
+    }
+
+    public void deleteFilmService(int idFilm) {
+        filmStorage.deleteFilm(idFilm);
     }
 
     public static void checkValidationFilm(Film film) {
@@ -81,20 +83,60 @@ public class FilmService {
         if (id < 0 || userId < 0)
             throw new NotFoundException("Неверный формат id");
         filmStorage.addLike(id, userId);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.ADD, id);
     }
 
     public void deleteUserLikeFromFilmService(int id, int userId) {
         if (id < 0 || userId < 0)
             throw new NotFoundException("Неверный формат id");
         filmStorage.deleteLike(id, userId);
+        eventService.createEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
     }
 
-    public List<Film> getPopularFilmsService(int count) {
-        return filmStorage.getAllFilmsStorage()
+    public List<Film> getPopularFilmsService(int count, long genreId, int year) {
+        List<Film> filmByYear = filmStorage.getAllFilmsStorage()
+                .stream()
+                .filter(film -> film.getReleaseDate().getYear() == year)
+                .limit(count)
+                .collect(Collectors.toList());
+        List<Film> filmByGenreId = filmStorage.getAllFilmsStorage()
+                .stream()
+                .filter(film -> film.getGenres()
+                        .stream()
+                        .anyMatch(genre -> genre.getId() == genreId))
+                .collect(Collectors.toList());
+        if (year != 0 && genreId == 0) {
+            return filmByYear.stream()
+                    .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else if (year == 0 && genreId != 0) {
+            return filmByGenreId.stream()
+                    .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else if (year == 0) {
+            return filmStorage.getAllFilmsStorage()
                 .stream()
                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());
+        } else {
+            filmByGenreId = filmByYear.stream()
+                    .filter(film -> film.getGenres()
+                            .stream()
+                            .anyMatch(genre -> genre.getId() == genreId))
+                    .collect(Collectors.toList());
+
+         return filmByGenreId.stream()
+                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
+                 .limit(10)
+                 .collect(Collectors.toList());
+        }
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        return filmStorage.searchFilms(query, by);
     }
 
     private static boolean isBeforeDate(LocalDate realiseDate) {
@@ -109,8 +151,15 @@ public class FilmService {
         }
     }
 
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int directorId, String sortBy) {
+        return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
+    }
+
     private static int getNextId() {
         return ++increment;
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
 }
